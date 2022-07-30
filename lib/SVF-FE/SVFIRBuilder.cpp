@@ -136,6 +136,11 @@ SVFIR* SVFIRBuilder::build(SVFModule* svfModule)
     if (Options::DumpICFG)
         pag->getICFG()->dump("icfg_initial");
 
+    // export SVFIR to a file
+    if (!Options::ExportSVFIR.empty()){
+        SVFIRReadWrite::exportSVFIRToFile(pag, Options::ExportSVFIR);
+    }
+
     if (Options::LoopAnalysis)
     {
         LLVMLoopAnalysis loopAnalysis;

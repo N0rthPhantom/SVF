@@ -351,6 +351,18 @@ const llvm::cl::opt<bool> Options::ConnectVCallOnCHA(
     llvm::cl::desc("connect virtual calls using cha")
 );
 
+// export and import SVFIR
+const llvm::cl::opt<std::string> Options::ExportSVFIR(
+    "export-svfir",
+    llvm::cl::init(""),
+    llvm::cl::desc("Export SVFIR into a file")
+);
+
+const llvm::cl::opt<std::string> Options::ImportSVFIR(
+    "import-svfir",
+    llvm::cl::init(""),
+    llvm::cl::desc("Import SVFIR from a file")
+);
 
 // PointerAnalysisImpl.cpp
 const llvm::cl::opt<bool> Options::INCDFPTData(
