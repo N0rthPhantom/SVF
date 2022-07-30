@@ -222,9 +222,9 @@ public:
     static const llvm::cl::opt<bool> SymTabPrint;
 
     // Conditions.cpp
-    static const llvm::cl::opt<unsigned> MaxBddSize;
+    static const llvm::cl::opt<unsigned> MaxZ3Size;
 
-    // PathCondAllocator.cpp
+    // SaberCondAllocator.cpp
     static const llvm::cl::opt<bool> PrintPathCond;
 
     // SVFUtil.cpp
@@ -253,8 +253,7 @@ public:
 
     // CFL option
     static const llvm::cl::opt<std::string> GrammarFilename;
-    static const llvm::cl::opt<std::string> InputFilename;
-    static const llvm::cl::opt<bool> GraphIsFromDot;
+    static const llvm::cl::opt<std::string> CFLGraph;
     static const llvm::cl::opt<bool> PrintCFL;
     static const llvm::cl::opt<bool> FlexSymMap;
 

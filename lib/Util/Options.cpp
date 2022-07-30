@@ -671,15 +671,16 @@ const llvm::cl::opt<bool> Options::SymTabPrint(
 );
 
 
+
 // Conditions.cpp
-const llvm::cl::opt<unsigned> Options::MaxBddSize(
-    "max-bdd-size",
-    llvm::cl::init(100000),
-    llvm::cl::desc("Maximum context limit for DDA")
+const llvm::cl::opt<unsigned> Options::MaxZ3Size(
+    "max-z3-size",
+    llvm::cl::init(30),
+    llvm::cl::desc("Maximum size limit for Z3 expression")
 );
 
 
-// PathCondAllocator.cpp
+// SaberCondAllocator.cpp
 const llvm::cl::opt<bool> Options::PrintPathCond(
     "print-pc",
     llvm::cl::init(false),
@@ -791,20 +792,14 @@ const llvm::cl::opt<bool> Options::ShowHiddenNode(
 
 const llvm::cl::opt<std::string> Options::GrammarFilename(
     "grammar",
-    llvm::cl::desc("<Grammar textfile>"),
-    llvm::cl::init("-")
+    llvm::cl::init(""),
+    llvm::cl::desc("<Grammar textfile>")
 );
 
-const llvm::cl::opt<std::string> Options::InputFilename(
-    llvm::cl::Positional,
-    llvm::cl::desc("<input bitcode>"),
-    llvm::cl::init("-")
-);
-
-const llvm::cl::opt<bool> Options::GraphIsFromDot(
-    "dot-graph",
-    llvm::cl::init(false),
-    llvm::cl::desc("Dot text as graph input")
+const llvm::cl::opt<std::string> Options::CFLGraph(
+    "cflgraph",
+    llvm::cl::init(""),
+    llvm::cl::desc("<dot file as the CFLGraph input>")
 );
 
 const llvm::cl::opt<bool> Options::PrintCFL(
