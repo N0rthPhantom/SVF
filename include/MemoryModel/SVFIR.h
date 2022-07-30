@@ -443,6 +443,10 @@ public:
     /// Print SVFIR
     void print();
 
+    /// Export SVFIR to a file
+    void exportToFile(std::string fileName);
+
+
 private:
 
     /// Map a SVFStatement type to a set of corresponding SVF statements

@@ -138,7 +138,7 @@ SVFIR* SVFIRBuilder::build(SVFModule* svfModule)
 
     // export SVFIR to a file
     if (!Options::ExportSVFIR.empty()){
-        SVFIRReadWrite::exportSVFIRToFile(pag, Options::ExportSVFIR);
+        pag->exportToFile(Options::ExportSVFIR);
     }
 
     if (Options::LoopAnalysis)

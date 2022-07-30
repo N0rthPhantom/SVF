@@ -27,7 +27,9 @@
  *      Author: Yuhao Gao
  */
 
-#include "Graphs/SVFIRReadWrite.h"
+#include "MemoryModel/SVFIR.h"
+#include "Util/cJSON.h"
+#include <fstream>
 
 using namespace SVF;
 using namespace SVFUtil;
@@ -35,7 +37,7 @@ using namespace SVFUtil;
 /*!
  * Export SVFIR into a file
  */
-void SVF::SVFIRReadWrite::exportSVFIRToFile(SVF::SVFIR* pag, std::string fileName){
+void SVFIR::exportToFile(std::string fileName){
 
     // the json object we will export in the end
     cJSON* SVFIRJsonObj = cJSON_CreateObject();
