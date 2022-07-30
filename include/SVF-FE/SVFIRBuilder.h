@@ -31,7 +31,6 @@
 #define PAGBUILDER_H_
 
 #include "MemoryModel/SVFIR.h"
-#include "Graphs/SVFIRReadWrite.h"
 #include "Util/ExtAPI.h"
 #include "SVF-FE/BasicTypes.h"
 #include "SVF-FE/ICFGBuilder.h"
