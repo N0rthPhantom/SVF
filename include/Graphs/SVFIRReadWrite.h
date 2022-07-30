@@ -32,6 +32,7 @@
 
 #include "MemoryModel/SVFIR.h"
 #include "Util/cJSON.h"
+#include <fstream>
 
 namespace SVF
 {
@@ -42,9 +43,9 @@ class SVFIRReadWrite
     public:
 
         /// Export SVFIR to a file
-        void static exportSVFIRToFile(SVF::SVFIR svfir, std::string fileName);
+        void static exportSVFIRToFile(SVF::SVFIR* pag, std::string fileName);
 
-}
+};
 
 }
 

@@ -29,10 +29,13 @@
 
 #include "Graphs/SVFIRReadWrite.h"
 
+using namespace SVF;
+using namespace SVFUtil;
+
 /*!
  * Export SVFIR into a file
  */
-void SVFIRReadWrite::exportSVFIRToFile(SVF::SVFIR svfir, std::string fileName){
+void SVF::SVFIRReadWrite::exportSVFIRToFile(SVF::SVFIR* pag, std::string fileName){
 
     // the json object we will export in the end
     cJSON* SVFIRJsonObj = cJSON_CreateObject();
@@ -50,7 +53,7 @@ void SVFIRReadWrite::exportSVFIRToFile(SVF::SVFIR svfir, std::string fileName){
         assert( SVFVar::PNODEK::ValNode <= nodeKindID && nodeKindID <= SVFVar::PNODEK::DummyObjNode && "new SVFIR node kind?");
         // then transfer the kind_ID into a string
         std::string nodeKindStr = "UnknownKindNode";
-        map<SVFVar::PNODEK, std::string> nodeKindToStrMap = {
+        Map<SVFVar::PNODEK, std::string> nodeKindToStrMap = {
             {SVFVar::PNODEK::ValNode, "ValNode"},
             {SVFVar::PNODEK::GepValNode, "GepValNode"},
             {SVFVar::PNODEK::RetNode, "RetNode"},
@@ -61,7 +64,7 @@ void SVFIRReadWrite::exportSVFIRToFile(SVF::SVFIR svfir, std::string fileName){
             {SVFVar::PNODEK::FIObjNode, "FIObjNode"},
             {SVFVar::PNODEK::DummyObjNode, "DummyObjNode"},
         };
-        map<SVFVar::PNODEK, std::string>::iterator nodeKindToStrMapIter = nodeKindToStrMap.find((SVFVar::PNODEK)nodeKindID);
+        Map<SVFVar::PNODEK, std::string>::iterator nodeKindToStrMapIter = nodeKindToStrMap.find((SVFVar::PNODEK)nodeKindID);
         assert(nodeKindToStrMapIter!=nodeKindToStrMap.end() && "new SVFIR node kind?");
         nodeKindStr = (*nodeKindToStrMapIter).second;
 
@@ -77,7 +80,7 @@ void SVFIRReadWrite::exportSVFIRToFile(SVF::SVFIR svfir, std::string fileName){
     // END: traverse the nodes in PAG
 
     // traverse the edges in PAG
-    map<SVFStmt::PEDGEK, std::string> edgeKindToStrMap = {
+    Map<SVFStmt::PEDGEK, std::string> edgeKindToStrMap = {
         {SVFStmt::Addr, "Addr"},
         {SVFStmt::Copy, "Copy"},
         {SVFStmt::Store, "Store"},
@@ -93,7 +96,7 @@ void SVFIRReadWrite::exportSVFIRToFile(SVF::SVFIR svfir, std::string fileName){
         {SVFStmt::Branch, "Branch"},
         {SVFStmt::ThreadFork, "ThreadFork"},
         {SVFStmt::ThreadJoin, "ThreadJoin"}};
-    for (map<SVFStmt::PEDGEK, std::string>::iterator edgeKindIter = edgeKindToStrMap.begin(), endOfEdgeKindIter = edgeKindToStrMap.end();
+    for (Map<SVFStmt::PEDGEK, std::string>::iterator edgeKindIter = edgeKindToStrMap.begin(), endOfEdgeKindIter = edgeKindToStrMap.end();
          edgeKindIter != endOfEdgeKindIter; ++edgeKindIter)
     {
         SVFStmt::PEDGEK edgeKindID = (*edgeKindIter).first;
@@ -119,7 +122,6 @@ void SVFIRReadWrite::exportSVFIRToFile(SVF::SVFIR svfir, std::string fileName){
 
     // write the JSON object to a file
     outs() << "Writing SVFIR to file: '" << fileName << "'...";
-    error_code err;
     std::fstream f(fileName.c_str(), std::ios_base::out);
     if (!f.good())
     {
