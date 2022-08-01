@@ -189,42 +189,62 @@ bool SVFIR::readFromFile(std::string fileName){
         
         // add node to pag, record new nodeID in a map
         Map<int, int> nodeIDtoNewIDMap;
+        NodeID newNodeID = 0;
         assert( SVFVar::PNODEK::ValNode <= nodeKindID && nodeKindID <= SVFVar::PNODEK::DummyObjNode && "new SVFIR node kind?");
         switch (nodeKindID)
         {
         case SVFVar::PNODEK::ValNode:
+        {
             pag->addValNode(nullptr, nodeID);
             break;
+        }
         case SVFVar::PNODEK::GepValNode:
+        {
             SVF::LocationSet* ls = new SVF::LocationSet();
             pag->addGepValNode(nullptr,nullptr, *ls, nodeID, nullptr);
             break;
+        }
         case SVFVar::PNODEK::RetNode:
+        {
             pag->addRetNode(nullptr, nodeID);
             break;
+        }
         case SVFVar::PNODEK::VarargNode:
+        {
             pag->addVarargNode(nullptr, nodeID);
             break;
+        }
         case SVFVar::PNODEK::DummyValNode:
-            NodeID newNodeID = pag->addDummyValNode();
+        {
+            newNodeID = pag->addDummyValNode();
             nodeIDtoNewIDMap[newNodeID] = nodeID;
             break;
+        }
         case SVFVar::PNODEK::ObjNode:
+        {
             pag->addObjNode(nullptr, nodeID);
             break;
+        }
         case SVFVar::PNODEK::GepObjNode:
+        {
             pag->addGepObjNode(nullptr, nodeID);
             break;
+        }
         case SVFVar::PNODEK::FIObjNode:
-            NodeID newNodeID = pag->addFIObjNode(nullptr);
+        {
+            newNodeID = pag->addFIObjNode(nullptr);
             nodeIDtoNewIDMap[newNodeID] = nodeID;
             break;
+        }
         case SVFVar::PNODEK::DummyObjNode:
-            NodeID newNodeID = pag->addDummyObjNode(nullptr);
+        {
+            newNodeID = pag->addDummyObjNode(nullptr);
             nodeIDtoNewIDMap[newNodeID] = nodeID;
             break;
+        }
         
         default:
+            assert("new SVFIR node kind?");
             break;
         }
 
@@ -271,30 +291,44 @@ bool SVFIR::readFromFile(std::string fileName){
         switch (edgeKindID)
         {
         case SVFStmt::Addr:
+        {
             pag->addAddrStmt(*srcNodeID, *dstNodeID);
             break;
+        }
         case SVFStmt::Copy:
+        {
             pag->addCopyStmt(*srcNodeID, *dstNodeID);
             break;
+        }
         case SVFStmt::Store:
+        {
             pag->addStoreStmt(*srcNodeID, *dstNodeID, nullptr);
             break;
+        }
         case SVFStmt::Load:
+        {
             pag->addLoadStmt(*srcNodeID, *dstNodeID);
             break;
+        }
         case SVFStmt::Call:
+        {
             pag->addCallPE(*srcNodeID, *dstNodeID, nullptr, nullptr);
             break;
+        }
         // case SVFStmt::Ret:
         //     pag->addCallPE(*srcNodeID, *dstNodeID, nullptr, nullptr);
         //     break;
         case SVFStmt::Gep:
+        {
             SVF::LocationSet* ls = new SVF::LocationSet();
             pag->addGepStmt(*srcNodeID, *dstNodeID, *ls, false);
             break;
+        }
         case SVFStmt::Phi:
+        {
             pag->addPhiStmt(*srcNodeID, *dstNodeID, nullptr);
             break;
+        }
         // case SVFStmt::Select:
         //     pag->addSelectStmt(*srcNodeID, *dstNodeID);
         //     break;
@@ -318,7 +352,10 @@ bool SVFIR::readFromFile(std::string fileName){
         //     break;
         
         default:
+
+            assert("new SVFIR edge kind?");
             break;
+
         }
     }
     
