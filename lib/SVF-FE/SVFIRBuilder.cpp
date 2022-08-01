@@ -57,6 +57,12 @@ SVFIR* SVFIRBuilder::build(SVFModule* svfModule)
         return fileBuilder.build();
     }
 
+    // Read SVFIR from file
+    if (!Options::ReadSVFIR.empty()){
+        assert(pag->readFromFile(Options::ReadSVFIR) && "Invalid SVFIR file?");
+        return pag;
+    }
+
     // If the SVFIR has been built before, then we return the unique SVFIR of the program
     if(pag->getNodeNumAfterPAGBuild() > 1)
         return pag;
@@ -137,8 +143,8 @@ SVFIR* SVFIRBuilder::build(SVFModule* svfModule)
         pag->getICFG()->dump("icfg_initial");
 
     // export SVFIR to a file
-    if (!Options::ExportSVFIR.empty()){
-        pag->exportToFile(Options::ExportSVFIR);
+    if (!Options::WriteSVFIR.empty()){
+        pag->writeToFile(Options::WriteSVFIR);
     }
 
     if (Options::LoopAnalysis)

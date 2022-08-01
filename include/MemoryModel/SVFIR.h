@@ -443,8 +443,11 @@ public:
     /// Print SVFIR
     void print();
 
-    /// Export SVFIR to a file
-    void exportToFile(std::string fileName);
+    /// Write SVFIR to a file
+    void writeToFile(std::string fileName);
+
+    /// Read SVFIR to a file
+    bool readFromFile(std::string fileName);
 
 
 private:

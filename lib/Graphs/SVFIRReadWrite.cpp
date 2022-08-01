@@ -35,9 +35,9 @@ using namespace SVF;
 using namespace SVFUtil;
 
 /*!
- * Export SVFIR into a file
+ * Write SVFIR into a file
  */
-void SVFIR::exportToFile(std::string fileName){
+void SVFIR::writeToFile(std::string fileName){
 
     // the json object we will export in the end
     cJSON* SVFIRJsonObj = cJSON_CreateObject();
@@ -144,4 +144,183 @@ void SVFIR::exportToFile(std::string fileName){
             return;
         }
     }
+}
+
+/*!
+ * Read SVFIR from a file
+ */
+bool SVFIR::readFromFile(std::string fileName){
+    outs() << "Read SVFIR from file: '" << fileName << "'...";
+
+    // read string from file
+    std::fstream f(fileName.c_str(), std::ios_base::in);
+    int jsonFileLength = 0;
+    f.seekg(0, std::ios::end);
+    jsonFileLength = f.tellg();
+    f.seekg(0, std::ios::beg);
+    char* jsonFileBuffer = new char[jsonFileLength];
+    f.read(jsonFileBuffer, jsonFileLength);
+    f.close();
+    
+    // parse string into json object
+    const cJSON* SVFIRJsonObj = cJSON_ParseWithLength(jsonFileBuffer, jsonFileLength);
+    assert(SVFIRJsonObj && "Parse SVFIR file failed.");
+
+    // parse nodes array
+    const cJSON* SVFIRJsonObjNodes = cJSON_GetObjectItem(SVFIRJsonObj, "nodes");
+    assert(SVFIRJsonObjNodes && cJSON_IsArray(SVFIRJsonObjNodes) && "Parse SVFIR nodes failed.");
+
+    // parse edges array
+    const cJSON* SVFIRJsonObjEdges = cJSON_GetObjectItem(SVFIRJsonObj, "edges");
+    assert(SVFIRJsonObjEdges && cJSON_IsArray(SVFIRJsonObjEdges) && "Parse SVFIR edges failed.");
+    
+    // traverse nodes
+    const cJSON* SVFIRJsonObjNode = NULL;
+    cJSON_ArrayForEach(SVFIRJsonObjNode, SVFIRJsonObjNodes){
+        // get nodeID
+        const cJSON* SVFIRJsonObjNodeID = cJSON_GetObjectItem(SVFIRJsonObjNode, "nodeID");
+        assert(SVFIRJsonObjNodeID && cJSON_IsNumber(SVFIRJsonObjNodeID) && "Parse SVFIR nodeID failed.");
+        int nodeID = SVFIRJsonObjNodeID->valueint;
+
+        // get node kind ID
+        const cJSON* SVFIRJsonObjNodeKindID = cJSON_GetObjectItem(SVFIRJsonObjNode, "nodeKindID");
+        assert(SVFIRJsonObjNodeKindID && cJSON_IsNumber(SVFIRJsonObjNodeKindID) && "Parse SVFIR nodeKindID failed.");
+        int nodeKindID = SVFIRJsonObjNodeKindID->valueint;
+        
+        // add node to pag, record new nodeID in a map
+        Map<int, int> nodeIDtoNewIDMap;
+        assert( SVFVar::PNODEK::ValNode <= nodeKindID && nodeKindID <= SVFVar::PNODEK::DummyObjNode && "new SVFIR node kind?");
+        switch (nodeKindID)
+        {
+        case SVFVar::PNODEK::ValNode:
+            pag->addValNode(nullptr, nodeID);
+            break;
+        case SVFVar::PNODEK::GepValNode:
+            SVF::LocationSet* ls = new SVF::LocationSet();
+            pag->addGepValNode(nullptr,nullptr, *ls, nodeID, nullptr);
+            break;
+        case SVFVar::PNODEK::RetNode:
+            pag->addRetNode(nullptr, nodeID);
+            break;
+        case SVFVar::PNODEK::VarargNode:
+            pag->addVarargNode(nullptr, nodeID);
+            break;
+        case SVFVar::PNODEK::DummyValNode:
+            NodeID newNodeID = pag->addDummyValNode();
+            nodeIDtoNewIDMap[newNodeID] = nodeID;
+            break;
+        case SVFVar::PNODEK::ObjNode:
+            pag->addObjNode(nullptr, nodeID);
+            break;
+        case SVFVar::PNODEK::GepObjNode:
+            pag->addGepObjNode(nullptr, nodeID);
+            break;
+        case SVFVar::PNODEK::FIObjNode:
+            NodeID newNodeID = pag->addFIObjNode(nullptr);
+            nodeIDtoNewIDMap[newNodeID] = nodeID;
+            break;
+        case SVFVar::PNODEK::DummyObjNode:
+            NodeID newNodeID = pag->addDummyObjNode(nullptr);
+            nodeIDtoNewIDMap[newNodeID] = nodeID;
+            break;
+        
+        default:
+            break;
+        }
+
+    }
+
+    const cJSON* SVFIRJsonObjEdge = NULL;
+    cJSON_ArrayForEach(SVFIRJsonObjEdge, SVFIRJsonObjEdges){
+        // cJSON_AddNumberToObject(edgeJSONObject, "edgeKindID", edgeKindID);
+        // cJSON_AddNumberToObject(edgeJSONObject, "srcNodeID", srcNodeID);
+        // cJSON_AddNumberToObject(edgeJSONObject, "dstNodeID", dstNodeID);
+        
+        // get srcNodeID
+        const cJSON* SVFIRJsonObjEdgeSrcNodeID = cJSON_GetObjectItem(SVFIRJsonObjEdge, "srcNodeID");
+        assert(SVFIRJsonObjEdgeSrcNodeID && cJSON_IsNumber(SVFIRJsonObjEdgeSrcNodeID) && "Parse SVFIR srcNodeID failed.");
+        NodeID* srcNodeID = new NodeID(SVFIRJsonObjEdgeSrcNodeID->valueint);
+        
+        // get dstNodeID
+        const cJSON* SVFIRJsonObjEdgeDstNodeID = cJSON_GetObjectItem(SVFIRJsonObjEdge, "dstNodeID");
+        assert(SVFIRJsonObjEdgeDstNodeID && cJSON_IsNumber(SVFIRJsonObjEdgeDstNodeID) && "Parse SVFIR dstNodeID failed.");
+        NodeID* dstNodeID = new NodeID(SVFIRJsonObjEdgeDstNodeID->valueint);
+
+        // get edge kind ID
+        const cJSON* SVFIRJsonObjEdgeKindID = cJSON_GetObjectItem(SVFIRJsonObjEdge, "edgeKindID");
+        assert(SVFIRJsonObjEdgeKindID && cJSON_IsNumber(SVFIRJsonObjEdgeKindID) && "Parse SVFIR edgeKindID failed.");
+        int edgeKindID = SVFIRJsonObjEdgeKindID->valueint;
+
+        // {SVFStmt::Addr, "Addr"},
+        // {SVFStmt::Copy, "Copy"},
+        // {SVFStmt::Store, "Store"},
+        // {SVFStmt::Load, "Load"},
+        // {SVFStmt::Call, "Call"},
+        // {SVFStmt::Ret, "Ret"},
+        // {SVFStmt::Gep, "Gep"},
+        // {SVFStmt::Phi, "Phi"},
+        // {SVFStmt::Select, "Select"},
+        // {SVFStmt::Cmp, "Cmp"},
+        // {SVFStmt::BinaryOp, "BinaryOp"},
+        // {SVFStmt::UnaryOp, "UnaryOp"},
+        // {SVFStmt::Branch, "Branch"},
+        // {SVFStmt::ThreadFork, "ThreadFork"},
+        // {SVFStmt::ThreadJoin, "ThreadJoin"}};
+
+        assert( SVFStmt::Addr <= edgeKindID && edgeKindID <= SVFStmt::ThreadJoin && "new SVFIR edge kind?");
+        switch (edgeKindID)
+        {
+        case SVFStmt::Addr:
+            pag->addAddrStmt(*srcNodeID, *dstNodeID);
+            break;
+        case SVFStmt::Copy:
+            pag->addCopyStmt(*srcNodeID, *dstNodeID);
+            break;
+        case SVFStmt::Store:
+            pag->addStoreStmt(*srcNodeID, *dstNodeID, nullptr);
+            break;
+        case SVFStmt::Load:
+            pag->addLoadStmt(*srcNodeID, *dstNodeID);
+            break;
+        case SVFStmt::Call:
+            pag->addCallPE(*srcNodeID, *dstNodeID, nullptr, nullptr);
+            break;
+        // case SVFStmt::Ret:
+        //     pag->addCallPE(*srcNodeID, *dstNodeID, nullptr, nullptr);
+        //     break;
+        case SVFStmt::Gep:
+            SVF::LocationSet* ls = new SVF::LocationSet();
+            pag->addGepStmt(*srcNodeID, *dstNodeID, *ls, false);
+            break;
+        case SVFStmt::Phi:
+            pag->addPhiStmt(*srcNodeID, *dstNodeID, nullptr);
+            break;
+        // case SVFStmt::Select:
+        //     pag->addSelectStmt(*srcNodeID, *dstNodeID);
+        //     break;
+        // case SVFStmt::Cmp:
+        //     pag->addCmpStmt(*srcNodeID, *dstNodeID);
+        //     break;
+        // case SVFStmt::BinaryOp:
+        //     pag->addBinaryOPStmt(*srcNodeID, *dstNodeID);
+        //     break;
+        // case SVFStmt::UnaryOp:
+        //     pag->addUnaryOPStmt(*srcNodeID, *dstNodeID);
+        //     break;
+        // case SVFStmt::Branch:
+        //     pag->addBranchStmt(*srcNodeID, *dstNodeID);
+        //     break;
+        // case SVFStmt::ThreadFork:
+        //     pag->addThreadForkPE(*srcNodeID, *dstNodeID);
+        //     break;
+        // case SVFStmt::ThreadJoin:
+        //     pag->addThreadJoinPE(*srcNodeID, *dstNodeID);
+        //     break;
+        
+        default:
+            break;
+        }
+    }
+    
+    return true;
 }

@@ -352,16 +352,16 @@ const llvm::cl::opt<bool> Options::ConnectVCallOnCHA(
 );
 
 // export and import SVFIR
-const llvm::cl::opt<std::string> Options::ExportSVFIR(
-    "export-svfir",
+const llvm::cl::opt<std::string> Options::WriteSVFIR(
+    "write-svfir",
     llvm::cl::init(""),
-    llvm::cl::desc("Export SVFIR into a file")
+    llvm::cl::desc("Write SVFIR into a file")
 );
 
-const llvm::cl::opt<std::string> Options::ImportSVFIR(
-    "import-svfir",
+const llvm::cl::opt<std::string> Options::ReadSVFIR(
+    "read-svfir",
     llvm::cl::init(""),
-    llvm::cl::desc("Import SVFIR from a file")
+    llvm::cl::desc("Read SVFIR from a file")
 );
 
 // PointerAnalysisImpl.cpp

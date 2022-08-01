@@ -142,8 +142,8 @@ public:
     static const llvm::cl::opt<bool> ConnectVCallOnCHA;
 
     // export and import SVFIR (SVFIRBuilder.cpp)
-    static const llvm::cl::opt<std::string> ExportSVFIR;
-    static const llvm::cl::opt<std::string> ImportSVFIR;
+    static const llvm::cl::opt<std::string> WriteSVFIR;
+    static const llvm::cl::opt<std::string> ReadSVFIR;
 
     // PointerAnalysisImpl.cpp
     static const llvm::cl::opt<bool> INCDFPTData;
