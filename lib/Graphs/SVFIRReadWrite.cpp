@@ -36,6 +36,9 @@ using namespace SVFUtil;
 
 /*!
  * Write SVFIR into a file
+ *
+ * @param fileName the file the SVFIR write to
+ * 
  */
 void SVFIR::writeToFile(std::string fileName){
 
@@ -148,6 +151,9 @@ void SVFIR::writeToFile(std::string fileName){
 
 /*!
  * Read SVFIR from a file
+ *
+ * @param fileName the file the SVFIR read from
+ * 
  */
 bool SVFIR::readFromFile(std::string fileName){
     outs() << "Read SVFIR from file: '" << fileName << "'...";
@@ -201,7 +207,7 @@ bool SVFIR::readFromFile(std::string fileName){
         case SVFVar::PNODEK::GepValNode:
         {
             SVF::LocationSet* ls = new SVF::LocationSet();
-            pag->addGepValNode(nullptr,nullptr, *ls, nodeID, nullptr);
+            pag->addGepValNode(nullptr, nullptr, *ls, nodeID, nullptr);
             break;
         }
         case SVFVar::PNODEK::RetNode:
@@ -270,22 +276,6 @@ bool SVFIR::readFromFile(std::string fileName){
         const cJSON* SVFIRJsonObjEdgeKindID = cJSON_GetObjectItem(SVFIRJsonObjEdge, "edgeKindID");
         assert(SVFIRJsonObjEdgeKindID && cJSON_IsNumber(SVFIRJsonObjEdgeKindID) && "Parse SVFIR edgeKindID failed.");
         int edgeKindID = SVFIRJsonObjEdgeKindID->valueint;
-
-        // {SVFStmt::Addr, "Addr"},
-        // {SVFStmt::Copy, "Copy"},
-        // {SVFStmt::Store, "Store"},
-        // {SVFStmt::Load, "Load"},
-        // {SVFStmt::Call, "Call"},
-        // {SVFStmt::Ret, "Ret"},
-        // {SVFStmt::Gep, "Gep"},
-        // {SVFStmt::Phi, "Phi"},
-        // {SVFStmt::Select, "Select"},
-        // {SVFStmt::Cmp, "Cmp"},
-        // {SVFStmt::BinaryOp, "BinaryOp"},
-        // {SVFStmt::UnaryOp, "UnaryOp"},
-        // {SVFStmt::Branch, "Branch"},
-        // {SVFStmt::ThreadFork, "ThreadFork"},
-        // {SVFStmt::ThreadJoin, "ThreadJoin"}};
 
         assert( SVFStmt::Addr <= edgeKindID && edgeKindID <= SVFStmt::ThreadJoin && "new SVFIR edge kind?");
         switch (edgeKindID)
