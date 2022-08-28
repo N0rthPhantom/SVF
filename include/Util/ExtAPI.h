@@ -1,33 +1,30 @@
-/*  [ExtAPI.h] Info about external llvm::Functions
- *  v. 005, 2008-08-15
- *------------------------------------------------------------------------------
- *  Copyright 2008 Andrey Petrov
- *  - apetrov87@gmail.com, apetrov@cs.utexas.edu
- *
- *  Permission is hereby granted, free of charge, to any person
- *  obtaining a copy of this software and associated documentation
- *  files (the "Software"), to deal in the Software without
- *  restriction, including without limitation the rights to use, copy,
- *  modify, merge, publish, distribute, sublicense, and/or sell copies
- *  of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
- *
- *  The above copyright notice and this permission notice shall be
- *  included in all copies or substantial portions of the Software.
- *
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- *  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- *  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- *  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- *  HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- *  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- *  DEALINGS IN THE SOFTWARE.
- *------------------------------------------------------------------------------
- */
+//===- ExtAPI.h -- External functions -----------------------------------------//
+//
+//                     SVF: Static Value-Flow Analysis
+//
+// Copyright (C) <2013-2017>  <Yulei Sui>
+//
+
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+//===----------------------------------------------------------------------===//
 
 /*
- * Modified by Yulei Sui 2013
+ * ExtAPI.h
+ *
+ *  Created on: July 1, 2022
+ *      Author: Shuangxiang Kan
  */
 
 #ifndef __ExtAPI_H
@@ -66,14 +63,14 @@ overwrite_app_function = 1: Use specifications in ExtAPI.json to overwrite the u
 Function type represents the properties of the function.
 For example,
 "EFT_ALLOC" represents if this external function allocates a new object and assigns it to one of its arguments,
-For the selection of function type and a more detailed explanation, please refer to the definition of enum *extf_t* in ExtAPI.h.
+For the selection of function type and a more detailed explanation, please refer to the definition of enum *extType* in ExtAPI.h.
 
 *** [4] Function operations
 Function operations indicate the relationships between input and output,
 mainly between function parameters or between parameters and return values after the execution.
 For example,
 "copy": ["A2", "L"] indicates that after this external function is executed, the value of the 2nd parameter is copied into the return value.
-For the selection of function type and a more detailed explanation, please refer to the definition of enum *extType* in ExtAPI.h.
+For the selection of function type and a more detailed explanation, please refer to the definition of enum *extf_t* in ExtAPI.h.
 
 For operands of function operation, e.g., "A2", "L", there are the following options:
 "A": represents a parameter;
@@ -102,23 +99,9 @@ Here we use regular expressions "(AN)(R|RN)^*" to represent parameters, for exam
 }
 */
 
-
 class ExtAPI
 {
 public:
-    enum extf_t
-    {
-        EXT_ADDR = 0,  // Handle addr edge
-        EXT_COPY,      // Handle copy edge
-        EXT_LOAD,      // Handle load edge
-        EXT_STORE,     // Handle store edge
-        EXT_LOADSTORE, // Handle load and store edges, and add a dummy node
-        EXT_COPY_N,    // Copy the character c (an unsigned char) to the first n characters of the string pointed to, by the argument str
-        EXT_COPY_MN,   // Copies n characters from memory area src to memory area dest.
-        EXT_FUNPTR,    // Handle function void *dlsym(void *handle, const char *symbol)
-        EXT_COMPLEX,   // Handle function _ZSt29_Rb_tree_insert_and_rebalancebPSt18_Rb_tree_node_baseS0_RS_
-        EXT_OTHER
-    };
 
     // External Function types
     // Assume a call in the form LHS= F(arg0, arg1, arg2, arg3).
@@ -167,18 +150,6 @@ public:
     };
 
 private:
-    std::map<std::string, extf_t> op_pair =
-    {
-        {"addr", EXT_ADDR},
-        {"copy", EXT_COPY},
-        {"load", EXT_LOAD},
-        {"store", EXT_STORE},
-        {"load_store", EXT_LOADSTORE},
-        {"copy_n", EXT_COPY_N},
-        {"copy_mn", EXT_COPY_MN},
-        {"complex", EXT_COMPLEX},
-        {"funptr", EXT_FUNPTR}
-    };
 
     std::map<std::string, extType> type_pair =
     {
@@ -227,14 +198,62 @@ private:
     ExtAPI() = default;
 
 public:
+
+    class Operation
+    {
+    public:
+        Operation() {};
+
+        Operation(std::string opn, std::vector<std::string> varstr) : op(opn), operandStr(varstr) {};
+
+        std::string getOperator()
+        {
+            return op;
+        }
+
+        std::vector<std::string> getOperandStr()
+        {
+            return operandStr;
+        }
+
+        std::vector<NodeID> getOperands()
+        {
+            return operands;
+        }
+
+        void setOperands(std::vector<NodeID> vars)
+        {
+            operands = vars;
+        }
+
+    private:
+        std::string op;
+        std::vector<std::string> operandStr;
+        std::vector<NodeID> operands;
+    };
     static ExtAPI *getExtAPI(const std::string & = "");
 
     static void destory();
 
-    // Get the corresponding name in ext_t, e.g. "EXT_ADDR" in {"addr", EXT_ADDR},
-    extf_t get_opName(std::string s);
+    // Add an entry with the specified fields to the ExtAPI, which will be reflected immediately by further ExtAPI queries
+    void add_entry(const char* funName, extType type, bool overwrite_app_function);
 
-    // Return the extf_t of (F).
+    // Get numeric index of the argument in external function
+    u32_t getArgPos(std::string s);
+
+    // return value >= 0 is an argument node
+    // return value = -1 is an inst node
+    // return value = -2 is a Dummy node
+    // return value = -3 is an object node
+    // return value = -4 is an offset
+    // return value = -5 is an illegal operand format
+    int getNodeIDType(std::string s);
+
+    // Get the corresponding name in ext_t, e.g. "EXT_ADDR" in {"addr", EXT_ADDR},
+    std::string get_opName(const std::string& s);
+    // opposite for extType
+    const std::string& extType_toString(extType type);
+
     // Get external function name, e.g "memcpy"
     std::string get_name(const SVFFunction *F);
 
@@ -244,8 +263,12 @@ public:
     // Get specifications of external functions in ExtAPI.json file
     cJSON *get_FunJson(const std::string &funName);
 
+    // Get all operations of an extern function
+    std::vector<Operation> getAllOperations(std::string funName);
+
     // Get property of the operation, e.g. "EFT_A1R_A0R"
     extType get_type(const SVF::SVFFunction *callee);
+    extType get_type(const std::string& funName);
 
     // Get priority of he function, return value
     // 0: Apply user-defined functions

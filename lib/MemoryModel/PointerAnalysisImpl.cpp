@@ -25,9 +25,9 @@ using namespace std;
 BVDataPTAImpl::BVDataPTAImpl(SVFIR* p, PointerAnalysis::PTATY type, bool alias_check) :
     PointerAnalysis(p, type, alias_check), ptCache()
 {
-    if (type == Andersen_BASE || type == Andersen_WPA || type == AndersenWaveDiff_WPA || type == AndersenHCD_WPA || type == AndersenHLCD_WPA
-            || type == AndersenLCD_WPA || type == TypeCPP_WPA || type == FlowS_DDA || type == AndersenWaveDiffWithType_WPA
-            || type == AndersenSCD_WPA || type == AndersenSFR_WPA)
+    if (type == Andersen_BASE || type == Andersen_WPA || type == AndersenWaveDiff_WPA
+            || type == TypeCPP_WPA || type == FlowS_DDA
+            || type == AndersenSCD_WPA || type == AndersenSFR_WPA || type == CFLFICI_WPA )
     {
         // Only maintain reverse points-to when the analysis is field-sensitive, as objects turning
         // field-insensitive is all it is used for.
@@ -73,7 +73,37 @@ void BVDataPTAImpl::finalize()
 {
     normalizePointsTo();
     PointerAnalysis::finalize();
-    if (Options::ptDataBacking == PTBackingType::Persistent && Options::PStat) ptCache.printStats("bv-finalize");
+
+    if (Options::ptDataBacking == PTBackingType::Persistent && print_stat)
+    {
+        std::string moduleName(SymbolTableInfo::SymbolInfo()->getModule()->getModuleIdentifier());
+        std::vector<std::string> names = SVFUtil::split(moduleName,'/');
+        if (names.size() > 1)
+            moduleName = names[names.size() - 1];
+
+        std::string subtitle;
+
+        if(ptaTy >= Andersen_BASE && ptaTy <= Steensgaard_WPA)
+            subtitle = "Andersen's analysis bitvector";
+        else if(ptaTy >=FSDATAFLOW_WPA && ptaTy <=FSCS_WPA)
+            subtitle = "flow-sensitive analysis bitvector";
+        else if(ptaTy >=CFLFICI_WPA && ptaTy <=CFLFSCS_WPA)
+            subtitle = "CFL analysis bitvector";
+        else if(ptaTy == TypeCPP_WPA)
+            subtitle = "Type analysis bitvector";
+        else if(ptaTy >=FieldS_DDA && ptaTy <=Cxt_DDA)
+            subtitle = "DDA bitvector";
+        else
+            subtitle = "bitvector";
+
+        SVFUtil::outs() << "\n****Persistent Points-To Cache Statistics: " << subtitle << "****\n";
+        SVFUtil::outs() << "################ (program : " << moduleName << ")###############\n";
+        SVFUtil::outs().flags(std::ios::left);
+        ptCache.printStats("bitvector");
+        SVFUtil::outs() << "#######################################################" << std::endl;
+        SVFUtil::outs().flush();
+    }
+
 }
 
 /*!

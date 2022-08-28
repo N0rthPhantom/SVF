@@ -32,7 +32,7 @@
 #include "SVF-FE/ICFGBuilder.h"
 #include "Graphs/CHG.h"
 #include "WPA/TypeAnalysis.h"
-#include "MemoryModel/PTAStat.h"
+#include "Util/PTAStat.h"
 #include "Graphs/ICFGStat.h"
 #include "Graphs/VFG.h"
 
@@ -166,6 +166,7 @@ void TypeAnalysis::dumpCHAStats()
     outs() << "vtblnum:\t" << vtblnum << '\n';
     outs() << "vtbl_average:\t" << (double)(vfunc_total)/vtblnum << '\n';
     outs() << "vtbl_max:\t" << vtbl_max << '\n';
+    outs() << "pure_abstract:\t" << pure_abstract << '\n';
 }
 
 

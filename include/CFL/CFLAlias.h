@@ -27,6 +27,8 @@
  *      Author: Yulei Sui
  */
 
+#ifndef INCLUDE_CFL_CFLALIAS_H_
+#define INCLUDE_CFL_CFLALIAS_H_
 
 #include "CFL/CFLSolver.h"
 #include "CFL/CFGNormalizer.h"
@@ -40,13 +42,13 @@
 namespace SVF
 {
 
-class CFLAlias : public PointerAnalysis
+class CFLAlias : public BVDataPTAImpl
 {
 
 public:
     typedef OrderedMap<CallSite, NodeID> CallSite2DummyValPN;
 
-    CFLAlias(SVFIR* ir) : PointerAnalysis(ir, PointerAnalysis::CFLFICI_WPA), svfir(ir), graph(nullptr), grammar(nullptr), solver(nullptr)
+    CFLAlias(SVFIR* ir) : BVDataPTAImpl(ir, PointerAnalysis::CFLFICI_WPA), svfir(ir), graph(nullptr), grammar(nullptr), solver(nullptr)
     {
     }
 
@@ -77,10 +79,9 @@ public:
     }
 
     /// Get points-to targets of a pointer.  V In this context
-    virtual const PointsTo& getPts(NodeID ptr)
+    virtual const PointsTo& getCFLPts(NodeID ptr)
     {
         /// Check V Dst of ptr.
-        PointsTo *ps = new PointsTo();
         CFLNode *funNode = graph->getGNode(ptr);
         for(auto outedge = funNode->getOutEdges().begin(); outedge!=funNode->getOutEdges().end(); outedge++)
         {
@@ -88,18 +89,21 @@ public:
             {
                 // Need to Find dst addr src
                 CFLNode *vNode = graph->getGNode((*outedge)->getDstID());
-
+                addPts(ptr, svfir->getBaseValVar((*outedge)->getDstID()));
                 for(auto inEdge = vNode->getInEdges().begin(); inEdge!=vNode->getInEdges().end(); inEdge++)
                 {
                     if((*inEdge)->getEdgeKind() == 0)
                     {
-                        ps->set((*inEdge)->getSrcID());
+                        addPts(ptr, (*inEdge)->getSrcID());
                     }
                 }
             }
         }
-        return *ps;
+        return getPts(ptr);
     }
+
+    /// Need Original one for virtual table
+
 
     /// Add copy edge on constraint graph
     virtual inline bool addCopyEdge(NodeID src, NodeID dst)
@@ -142,4 +146,6 @@ private:
     CFLSolver *solver;
 };
 
-}
+} // End namespace SVF
+
+#endif /* INCLUDE_CFL_CFLALIAS_H_*/
