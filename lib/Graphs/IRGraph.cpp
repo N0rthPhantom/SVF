@@ -208,63 +208,63 @@ struct DOTGraphTraits<IRGraph*> : public DefaultDOTGraphTraits
         assert(edge && "No edge found!!");
         if (SVFUtil::isa<AddrStmt>(edge))
         {
-            return "color=green";
+            return "color=green, labelfontsize=10, label=\"AddrStmt\"";
         }
         else if (SVFUtil::isa<CopyStmt>(edge))
         {
-            return "color=black";
+            return "color=black, labelfontsize=10, label=\"CopyStmt\"";
         }
         else if (SVFUtil::isa<GepStmt>(edge))
         {
-            return "color=purple";
+            return "color=purple, labelfontsize=10, label=\"GepStmt\"";
         }
         else if (SVFUtil::isa<StoreStmt>(edge))
         {
-            return "color=blue";
+            return "color=blue, labelfontsize=10, label=\"StoreStmt\"";
         }
         else if (SVFUtil::isa<LoadStmt>(edge))
         {
-            return "color=red";
+            return "color=red, labelfontsize=10, label=\"LoadStmt\"";
         }
         else if (SVFUtil::isa<PhiStmt>(edge))
         {
-            return "color=grey";
+            return "color=grey, labelfontsize=10, label=\"PhiStmt\"";
         }
         else if (SVFUtil::isa<SelectStmt>(edge))
         {
-            return "color=grey";
+            return "color=grey, labelfontsize=10, label=\"SelectStmt\"";
         }
         else if (SVFUtil::isa<CmpStmt>(edge))
         {
-            return "color=grey";
+            return "color=grey, labelfontsize=10, label=\"CmpStmt\"";
         }
         else if (SVFUtil::isa<BinaryOPStmt>(edge))
         {
-            return "color=grey";
+            return "color=grey, labelfontsize=10, label=\"BinaryOPStmt\"";
         }
         else if (SVFUtil::isa<UnaryOPStmt>(edge))
         {
-            return "color=grey";
+            return "color=grey, labelfontsize=10, label=\"UnaryOPStmt\"";
         }
         else if (SVFUtil::isa<BranchStmt>(edge))
         {
-            return "color=grey";
+            return "color=grey, labelfontsize=10, label=\"BranchStmt\"";
         }
         else if (SVFUtil::isa<TDForkPE>(edge))
         {
-            return "color=Turquoise";
+            return "color=Turquoise, labelfontsize=10, label=\"TDForkPE\"";
         }
         else if (SVFUtil::isa<TDJoinPE>(edge))
         {
-            return "color=Turquoise";
+            return "color=Turquoise, labelfontsize=10, label=\"TDJoinPE\"";
         }
         else if (SVFUtil::isa<CallPE>(edge))
         {
-            return "color=black,style=dashed";
+            return "color=black,style=dashed, labelfontsize=10, label=\"CallPE\"";
         }
         else if (SVFUtil::isa<RetPE>(edge))
         {
-            return "color=black,style=dotted";
+            return "color=black,style=dotted, labelfontsize=10, label=\"RetPE\"";
         }
 
         assert(false && "No such kind edge!!");
