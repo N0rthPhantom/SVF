@@ -59,7 +59,7 @@ SVFIR* SVFIRBuilder::build(SVFModule* svfModule)
 
     // Read SVFIR from file
     if (!Options::ReadSVFIR.empty()){
-        assert(pag->readFromFile(Options::ReadSVFIR) && "Invalid SVFIR file?");
+        assert(pag->readFromFile(Options::ReadSVFIR, svfModule) && "Invalid SVFIR file?");
         return pag;
     }
 

@@ -447,7 +447,7 @@ public:
     void writeToFile(std::string fileName);
 
     /// Read SVFIR to a file
-    bool readFromFile(std::string fileName);
+    bool readFromFile(std::string fileName, SVFModule* svfModule);
 
 
 private:
